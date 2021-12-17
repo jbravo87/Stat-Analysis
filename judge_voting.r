@@ -106,6 +106,25 @@ plot(some_table)
 
 hist(some_table$n, col = "steelblue")
 
+library(ggstatsplot)
+ggstatsplot::ggcoefstats(
+  x = logit.model,
+  statistic = 'z',
+  ##exponentiate = true,
+  title=title,
+  xlab=xlab,
+  ylab=ylab
+)
+x3 <- with( trainingdata_2, summary(y1))
+
+# Another attempt at a bar plot
+vote_plot <- ggplot( trainingdata_2, aes( x = y2, y = y1 ) ) + geom_boxplot() + coord_flip()
+vote_plot
+
+# Will use same logic as above but with a new data frame
+voteplot2 <- ggplot( some_table, aes( x = n, y = y2 ) ) + geom_boxplot()
+voteplot2
+
 # Give the chart file a name.
 png(file = "histogram_lim_breaks.png")
 
@@ -124,92 +143,6 @@ z1 = table(training_data$y1)
 # judges_factor <- as.factor( training_data$x1 )
 # judges_numeric <- as.numeric( training_data$x1 )
 # length(judges_numeric)
-
-# The following is how to go about plotting a
-# logistical regression curve.
-
-#some_model <- glm( vs ~ hp, data = mtcars, family = binomial )
-#newdata <- data.frame( hp = seq(min(mtcars$hp), max(mtcars$hp ), len = 500))
-
-# Establish new data frame
-#newdf <- data.frame( judges_numeric = seq(min(judges_numeric), max(judges_numeric), len = 954))
-newdf2 <- data.frame( y, judges_numeric )
-newdf3 <- data.frame(judges = judges_numeric)
-
-#newdf$votes <- predict(model, newdf, type = "response" )
-#newdf2$votes <- predict(model, newdf2, type = "response" )
-#newdata$vs <- predict( some_model, newdata, type = "response" )
-newdf3$Vote <- predict( model2, newdf3, type = "response" )
-
-# Plotting Logic.
-#plot(vs~hp, data = mtcars, col = "steelblue" )
-#lines( vs~hp, newdata, lwd = 2)
-
-plot( judges_numeric ~ newdf2$y, data = training_data, col = "steelblue" )
-plot( judges_numeric ~ training_data$y )
-plot( training_data$y ~ judges_factor)
-plot( Vote ~ judges, data = newdf3, col = "steelblue" )
-summary(newdf3$judges)
-hist( training_data$x1 ~ training_data$y, data = newdf3, col = "steelblue" )
-typeof(newdf3$judges)
-coef( logit.model )
-
-# More summary data.
-summary(logit.model)$coef
-summary(logit.model)$coef[ , 4 ]
-
-# Function to predict the probability that the
-# judge will vote liberal given predictor values.
-model.probs <- predict(logit.model, type = "response")
-model.probs
-
-# To get the different categorical values.
-unique(y2)
-
-# Attempting some intial plotting.
-plot(model.probs)
-plot(logit.model)
-
-hist( y1 ~ y2, data = training_data, col = "steelblue" )
-
-cs <- cumsum(training_data$y2)
-
-# Following will give the number of occurences for each event.
-z1 = table(training_data$y1)
-
-
-judges_factor <- as.factor( training_data$x1 )
-judges_numeric <- as.numeric( training_data$x1 )
-length(judges_numeric)
-
-# The following is how to go about plotting a
-# logistical regression curve.
-
-#some_model <- glm( vs ~ hp, data = mtcars, family = binomial )
-#newdata <- data.frame( hp = seq(min(mtcars$hp), max(mtcars$hp ), len = 500))
-
-# Establish new data frame
-#newdf <- data.frame( judges_numeric = seq(min(judges_numeric), max(judges_numeric), len = 954))
-newdf2 <- data.frame( y, judges_numeric )
-newdf3 <- data.frame(judges = judges_numeric)
-
-#newdf$votes <- predict(model, newdf, type = "response" )
-#newdf2$votes <- predict(model, newdf2, type = "response" )
-#newdata$vs <- predict( some_model, newdata, type = "response" )
-newdf3$Vote <- predict( model2, newdf3, type = "response" )
-
-# Plotting Logic.
-#plot(vs~hp, data = mtcars, col = "steelblue" )
-#lines( vs~hp, newdata, lwd = 2)
-
-plot( judges_numeric ~ newdf2$y, data = training_data, col = "steelblue" )
-plot( judges_numeric ~ training_data$y )
-plot( training_data$y ~ judges_factor)
-plot( Vote ~ judges, data = newdf3, col = "steelblue" )
-summary(newdf3$judges)
-hist( training_data$x1 ~ training_data$y, data = newdf3, col = "steelblue" )
-typeof(newdf3$judges)
-length(judges_numeric)
 
 # The following is how to go about plotting a
 # logistical regression curve.
