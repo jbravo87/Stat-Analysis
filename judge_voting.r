@@ -1,3 +1,83 @@
+# Import necessary libraries
+library(plyr)
+library(dplyr)
+library(ggplot2)
+
+# Upload data to first data frame.
+raw_data <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/tenth-circuit/tenth-circuit.csv", header = TRUE, stringsAsFactors = FALSE)
+
+names(raw_data)
+df1 <- data.frame(raw_data$Judge1, raw_data$Vote1)
+typeof(df1$raw_data.Vote1)
+# above is integer type
+
+colnames(df1) <- c("Judge", "Vote")
+df1
+df1$Vote <- as.factor(df1$Vote)
+typeof(df1$Vote)
+
+# IMPORTANT: did not initially filter for immigraiton cases.
+df1$Vote <- factor(df1$Vote, labels = c("Conservative", "Liberal"))
+df1$Judge <- as.factor(df1$Judge)
+
+df2 <- df1 %>% group_by(df1$Judge) %>% count("Conservative")
+typeof(df2)
+# above is a list
+
+colnames(df2) <- c("Judge", "Vote", "Frequency")
+plot(df2$Judge, df2$Frequency)
+typeof(df2$Frequency)
+
+summarydata1 <- df1 %>%
+  group_by(df1$Vote) %>%
+  summarise(Count = n())
+summarydata1
+typeof(summarydata1)
+# above is a list
+
+colnames(summarydata1) <- c("Judge", "Count")
+# Histogram
+hist(summarydata1$Count)
+
+sum(with(df2, y1=="Liberal"))
+sum(with(df2, y1=="Conservative"))
+boxplot(with(df2, summary(df2$Frequency)))
+
+plot1 <- ggplot(df2, aes(x = df2$Judge, y = df2$Frequency)) + geom_boxplot()
+plot1
+plot2 <- barplot(df2$Frequency)
+plot2
+
+df1 %>% group_by(df1$Vote)
+
+sum(x1$Vote1)
+
+# Store sum of Vote1 in y2
+y2 <- as.factor(x1$Vote1)
+typeof(y2)
+cumulative_sum <- count(y2)
+
+typeof(count(y2))
+cumulative_sum$x
+# Cumulative count stored in the following variable.
+total_votes <- sum(cumulative_sum$freq)
+total_votes
+
+# New data frame with just judge and vote.
+df3 <- data.frame(df2$Judge, df2$Frequency)
+colnames(df3) <- c("Judge", "Frequency")
+df3$Judges <- as.factor(df3$Judge)
+
+# df2 is already filtered for conservative votes
+for (i in df3) {
+  cat('Judge ', i, ' has a Conservative Count Rate of: ', (df3$Frequency == i)/total_votes, '\n', sep='')
+}
+
+########################################
+# Below is from an earlier attempt.
+#
+########################################
+
 # First want to upload a clean up the data a bit.
 raw_data <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/tenth-circuit/tenth-circuit.csv", header = TRUE, stringsAsFactors = FALSE)
 
@@ -27,6 +107,7 @@ levels(y2)
 # Now to unclass and assign each judge theor own respective number.
 y3 <- unclass(y2)
 print(y3)
+
 typeof(y3)
 
 y4 <- as.factor(y2)
