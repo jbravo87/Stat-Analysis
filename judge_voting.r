@@ -121,6 +121,9 @@ text(x = 1:length(df3$Judges),
      ## Increase label size.
      cex = 1.2)
 
+# Closer to what I want
+barplot(df3$Rate, names.arg = df3$Judges, density = 10, las=3)
+
 ########################################
 # Below is from an earlier attempt.
 #
