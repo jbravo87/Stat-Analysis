@@ -68,10 +68,58 @@ df3 <- data.frame(df2$Judge, df2$Frequency)
 colnames(df3) <- c("Judge", "Frequency")
 df3$Judges <- as.factor(df3$Judge)
 
-# df2 is already filtered for conservative votes
-for (i in df3) {
-  cat('Judge ', i, ' has a Conservative Count Rate of: ', (df3$Frequency == i)/total_votes, '\n', sep='')
+# BElow didn't deliver desired output.
+#df3%Rate <- df3$Frequency/total_votes
+
+# The following lines uses a for loop to calculate the
+# conservative voting rate for each judge and stores it
+# into a new column in the data frame.
+for(i in 1:length(df3$Frequency)) {
+  df3$Rate[i] <- df3$Frequency[i]/total_votes
 }
+
+# df2 is already filtered for conservative votes
+# for (i in 1:length(df)) {
+#   print("Judge ", df3$Judge[i], " has a Conservative Count Rate of: ", df3$Rate[i], "\n")
+# }
+for (i in df3) {
+  print(paste("Judge ", df3$Judge, " has a Conservative Vote Rate of: ", df3$Rate))
+}
+
+# Quick try at plotting
+ggplot(df3, aes(x = Judge)) + geom_boxplot()
+
+## Adjust some graphical parameters.
+par(mar = c(6.1, 4.1, 4.1, 4.1), # change the margins
+    lwd = 2, # increase the line thickness
+    cex.axis = 1.2 # increase default axis label size
+)
+#df3 %>% ggplot(mapping = aes(x=Judge, y= Rate)) + geom_boxplot()
+boxplot(df3$Judge, df3$Rate)
+## Draw x-axis without labels.
+axis(side = 1, labels = FALSE)
+
+## Draw y-axis.
+axis(side = 2,
+     ## Rotate labels perpendicular to y-axis.
+     las = 2,
+     ## Adjust y-axis label positions.
+     mgp = c(3, 0.75, 0))
+
+## Draw the x-axis labels.
+text(x = 1:length(df3$Judges),
+     ## Move labels to just below bottom of chart.
+     y = par("usr")[3] - 0.45,
+     ## Use names from the data list.
+     labels = unique(df3$Judges),
+     ## Change the clipping region.
+     xpd = NA,
+     ## Rotate the labels by 35 degrees.
+     srt = 35,
+     ## Adjust the labels to almost 100% right-justified.
+     adj = 0.965,
+     ## Increase label size.
+     cex = 1.2)
 
 ########################################
 # Below is from an earlier attempt.
