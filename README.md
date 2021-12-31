@@ -9,4 +9,8 @@ This allows for use of classification methods to perform statistical analysis. S
 
 The following plot depicts the voting rate (conservative vote/total votes) of the six most conservative judges (per total votes) plus Gorsuch. 
 
-> ![Top 6 Conservative Judges](https://github.com/jbravo87/Stat-Analysis/blob/21417d364ad487e42bf6ea56e5f9ff82d9afdc56/Top6MostConservativeRates.png)
+<p align="center">
+  <img width="460" height="300" src="https://github.com/jbravo87/Stat-Analysis/blob/21417d364ad487e42bf6ea56e5f9ff82d9afdc56/Top6MostConservativeRates.png">
+</p>
+
+
