@@ -159,13 +159,50 @@ table1
 filter( df1, Vote == 'Conservative' )
 
 # Will use dplyr to filter by Conservative Votes and Judges
+# conservative_votes <- df1 %>%
+#   filter(Vote == 'Conservative') %>%
+#   count(Judge) %>%
+#   arrange(desc(n))
 conservative_votes <- df1 %>%
-  filter(Vote == 'Conservative') %>%
-  count(Judge) %>%
-  arrange(desc(n))
-
+   filter(Vote == 'Conservative') %>%
+   count(Judge)
+ 
 # Recall that integer numbers in these R pipes uses standard 'n' notation
+# table2 <- df1 %>%
+#   group_by(Judge) %>%
+#   count() %>%
+#   arrange(desc(n))
 table2 <- df1 %>%
-  group_by(Judge) %>%
-  count() %>%
-  arrange(desc(n))
+   group_by(Judge) %>%
+   count()
+   
+total_consvote <- table2 %>% pull(n)
+conservative_votes <- cbind(conservative_votes, total_consvote)
+colnames(conservative_votes) <- c("Judge", "n", "TotalVotes")
+conservative_votes <- conservative_votes %>% arrange(desc(n))
+
+# initiate empty column
+conservative_votes["Rate"] <- NA
+# For loop to fill empty column and calculate rate.
+for(j in 1:length(conservative_votes$n)) {
+  conservative_votes$Rate[j] <- conservative_votes$n[j]/conservative_votes$TotalVotes[j]
+}
+
+# New data frame to store just the top 6 conservative judges
+# and their voting rate.
+
+df3 <- data.frame(head(conservative_votes$Judge), head(conservative_votes$Rate))
+colnames(df3) <- c('Judge', 'Rate')
+gorsuch3 <- conservative_votes[11, ]
+gorsuch4 <- subset(gorsuch3, select = -c(n, TotalVotes))
+
+# t5cj <- Top 5 COnservative Judges + Gorsuch
+t5cj <- rbind(df3, gorsuch4)
+
+plot4 <- ggplot(t5cj, aes(x = reorder(Judge, -Rate), y = Rate)) + 
+  geom_line(stat = "identity", color="darkorange", group = 1) + # Can also use geom_step
+  ggtitle('5 Most Conservative Judge Rate based on \nTotal Votes plus Gorsuch') +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_point() +
+  xlab('Judge')
+plot4
