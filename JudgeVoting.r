@@ -1,9 +1,9 @@
-####################
+######################################################################
 # First part will focus on exploring some simple questions.
 # 1. With what frequency did each respective judge vote conservatively
 #    on immigration cases in the first vote (Vote1)?
 # Will implemeny descriptive statistic
-####################
+######################################################################
 
 # Import necessary libraries
 #library(plyr)
@@ -90,34 +90,38 @@ total_votes <- sum(by_vote$n)
 str(total_votes)
 # Indeed an imteger
 
+# Initialize empty column to soon store probabilities.
+cons_vote["Probability"] <- NA
+
 # The following lines uses a for loop to calculate the
 # conservative voting rate for each judge and stores it
 # into a new column in the data frame.
 for(i in 1:length(cons_vote$Frequency)) {
-  cons_vote$Rate[i] <- cons_vote$Frequency[i]/total_votes
+  cons_vote$Probability[i] <- cons_vote$Frequency[i]/total_votes
 }
 
 for (i in cons_vote) {
-  print(paste("Judge ", cons_vote$Judge, " has a Conservative Vote Rate of: ", cons_vote$Rate))
+  print(paste("Judge ", cons_vote$Judge, " has a Conservative Vote Rate of: ", cons_vote$Probability))
 }
 
-# Top 5 Conservative Votes
-top5ConservativeRate <- head(cons_vote$Rate)
+# Top 6 Conservative Votes
+# REMINDER! Change variable name. Top 6, not 5.
+top5ConservativeProb <- head(cons_vote$Probability)
 # Type check
-str(top5ConservativeRate)
+str(top5ConservativeProb)
 # It's a numeric type
-boxplot(top5ConservativeRate, main = 'Five Most Conservative Judges')
+boxplot(top5ConservativeProb, main = 'Five Most Conservative Judges')
 
 # plot3 <- ggplot(top5_conservative, aes(x = Judge, y = Rate)) +
 #   geom_boxplot()
-plot3 <- ggplot(top5_conservative, aes(x = Judge, y = Rate)) +
+plot3 <- ggplot(cons_vote, aes(x = Judge, y = Prob)) +
   geom_col()
 plot3
 
 # New data frame to store just the top 6 conservative judges
 # and their voting rate.
-df2 <- data.frame(head(cons_vote$Judge), head(cons_vote$Rate))
-colnames(df2) <- c('Judge', 'Rate')
+df2 <- data.frame(head(cons_vote$Judge), head(cons_vote$Prob))
+colnames(df2) <- c('Judge', 'Prob')
 
 # Will add Gorsuch who is the judge of interest.
 gorsuch <- cons_vote[11, ]
@@ -127,7 +131,7 @@ gorsuch2 <- subset(gorsuch, select = -c(Vote, Frequency))
 # Add above variable to df2
 df2 <- rbind(df2, gorsuch2)
 
-ggplot(df2, aes(x = Judge, y = Rate)) + 
+ggplot(df2, aes(x = Judge, y = Prob)) + 
   geom_point(color="blue", alpha=2.0) +
   ggtitle('5 most conservative judges based on \ntotal votes plus Gorsuch') +
   theme(plot.title = element_text(hjust = 0.5))
@@ -139,3 +143,29 @@ ggplot(df2, aes(x = reorder(Judge, -Rate), y = Rate)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   geom_point() +
   xlab('Judge')
+
+#######################################################
+# Will now calculate the rate which is the conservative 
+# vote divided by number of times they voted 
+#######################################################
+
+# Table with each Judge's vote and count for each vote category
+table1<- df1 %>% group_by(Judge) %>% count(Vote) %>% arrange(n()) 
+table1
+
+# Now want simply the count for each judge.
+# Noticed error in earlier implementations
+# Consider the following filter method
+filter( df1, Vote == 'Conservative' )
+
+# Will use dplyr to filter by Conservative Votes and Judges
+conservative_votes <- df1 %>%
+  filter(Vote == 'Conservative') %>%
+  count(Judge) %>%
+  arrange(desc(n))
+
+# Recall that integer numbers in these R pipes uses standard 'n' notation
+table2 <- df1 %>%
+  group_by(Judge) %>%
+  count() %>%
+  arrange(desc(n))
