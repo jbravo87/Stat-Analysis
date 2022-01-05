@@ -60,7 +60,8 @@ hist(cons_vote$Frequency)
 plot(cons_vote$Judge, cons_vote$Frequency)
 
 #ggplot(cons_vote, aes(x = Frequency, y=Judge)) + geom_col()
-ggplot(cons_vote, aes(x = cons_vote$Frequency)) + geom_bar(stat = "identity")
+#ggplot(cons_vote, aes(x = cons_vote$Frequency)) + geom_bar(stat = "identity")
+# Some problems with line above.
 
 # vjust = 1.5 <- to get within 
 # ggplot(cons_vote, aes(x = reorder(Judge, -Frequency), y = Frequency)) + 
@@ -201,8 +202,17 @@ t5cj <- rbind(df3, gorsuch4)
 
 plot4 <- ggplot(t5cj, aes(x = reorder(Judge, -Rate), y = Rate)) + 
   geom_line(stat = "identity", color="darkorange", group = 1) + # Can also use geom_step
-  ggtitle('5 Most Conservative Judge Rate based on \nTotal Votes plus Gorsuch') +
+  ggtitle('6 Most Conservative Judge Rate with most \nTotal Votes plus Gorsuch') +
   theme(plot.title = element_text(hjust = 0.5)) +
   geom_point() +
   xlab('Judge')
 plot4
+
+# Will begin filtering for the liberal votes by judge
+lib_vote <- df1 %>% group_by(df1$Judge) %>% count("Liberal") %>% arrange(desc(n))
+lib_vote
+
+# Type check
+str(lib_vote)
+class(lib_vote)
+# Table and data frame
