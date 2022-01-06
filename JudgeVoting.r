@@ -212,7 +212,21 @@ plot4
 lib_vote <- df1 %>% group_by(df1$Judge) %>% count("Liberal") %>% arrange(desc(n))
 lib_vote
 
+# The liberal vote dataframe is the conservative vote table.
+# Going to experiment other pipes.
+x <-  df1 %>% filter(df1$Vote == "Liberal")
+x1 <- x %>% group_by(Judge)
+x2 <- x1 %>% count("Liberal")
+x3 <- x2 %>% arrange(desc(n))
+colnames(x3) <- c("Judge", "Vote", "Frequency")
+# The above few lines can be incorporated into one direct pipe.
+
 # Type check
 str(lib_vote)
 class(lib_vote)
 # Table and data frame
+
+# Rename columns similar to conservative vote.
+colnames(lib_vote) <- c("Judge", "Vote", "Frequency")
+
+hist(x3$Frequency)
