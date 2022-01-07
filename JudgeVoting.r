@@ -230,3 +230,30 @@ class(lib_vote)
 colnames(lib_vote) <- c("Judge", "Vote", "Frequency")
 
 hist(x3$Frequency)
+
+# Initialize empty column to soon store probabilities.
+x3["Probability"] <- NA
+
+# Following logic use a for loop to calculate the
+# liberal voting probability for each judge and stores it
+# into a new column in the data frame.
+for(i in 1:length(x3$Frequency)) {
+  x3$Probability[i] <- x3$Frequency[i]/total_votes
+}
+
+# will now store top 7 based on total votes and store probabilities
+# t7lvp <- top 7 liberal vote probability
+t7lvp <- x3[1:7, c(1,4)]
+t7lvp <- t7lvp %>% arrange(desc(Probability))
+# Want to plot the interquartile range IQR
+boxplot(t7lvp$Probability, 
+        main = 'Seven Most Liberal Voting Judges',
+        col = "royalblue3",
+        ylab = 'probability')
+
+ggplot(t7lvp, aes(x = reorder(Judge, -Probability), y = Probability)) + 
+  geom_line(stat = "identity", color="darkseagreen4", group = 1) + 
+  ggtitle('7 Most Liberal Judgese Judges based on \nTotal Votes including Gorsuch')
+  theme(plot.title = element_text(hjust = 0.5)) +
+  geom_point() + 
+  labs(x = 'Judge')  
