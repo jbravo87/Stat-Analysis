@@ -257,3 +257,54 @@ ggplot(t7lvp, aes(x = reorder(Judge, -Probability), y = Probability)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   geom_point() + 
   labs(x = 'Judge')  
+
+  
+# Now want to prepare dataset for logistical regression model.
+training_data <- subset(df1, select = c(Judge, Vote))
+names(training_data)
+dim(training_data)
+summary(training_data)
+pairs(training_data)
+cor(training_data)
+# Gives error message because the Vote variable is qualitative
+
+# Will fit a logit model in order to predit Vote using Judge.
+logit.model <- glm(Vote ~ Judge,
+             data = training_data,
+             family = binomial)
+summary(logit.model)
+
+# Smallest p-value associated with Judge Hartz
+# Want just the coefficients for this fitted model
+coef(logit.model)
+
+# Alternatively
+#summary(logit.model)$coef
+summary(logit.model)$coef[,4]
+
+# Want prob that a judge votes Liberal given values of the predictors.
+logit.prob <- predict(logit.model, type = "response")
+
+# Print first ten probabilities
+logit.prob[1:10]
+
+contrasts(training_data$Vote)
+# Above line to make sure R created a dummy variable with 1 for liberal.
+
+# Want to make prediction as to whether a judge votes Liberal or Conservative.
+# Need class predictors
+# Next command will create a vector of 554 Conservative votes.
+logit.pred <- rep("Conservative", 554)
+# Next line will transform to Liberal all elements which predicted prob exceeds 0.50,
+logit.pred[logit.prob > 0.5] = "Liberal"
+
+# Will now use the table function to get a confusion matrix
+# this matrix determines how many observations were correct or incorrect.
+table(logit.pred, training_data$Vote)
+# Diagonal elements of confusion matrix are correct predictions
+print((282+36)/554)
+
+# Alternatively
+mean(logit.pred == training_data$Vote)
+
+# So logistic regression predicted correctly 57.4% of time
