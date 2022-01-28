@@ -1,7 +1,7 @@
 """
 Created on Wed Jan 26 21:18:35 2022
 
-@author: joepb
+@author: José Bravo
 """
 # Import necessary libraries
 import pandas as pd
@@ -17,23 +17,33 @@ print(raw_data.shape)
 print(list(raw_data.columns))
 print(raw_data.head())
 
-# Now want to focus on last column
-#print(raw_data['TARGET_5Yrs'])
+# points and assists
+#assists = raw_data['AST']
+#points = raw_data['PTS']
 
-#print(raw_data[1:21])
+#plt.scatter(assists, points)
+#plt.show()
 
-# Want count of 0 or 1 (binary)
-#raw_data['TARGET_5Yrs'].value_counts()
+#y1 = zip(minutes, points)
+#y2 = list(y1)
+#data_frame = pd.DataFrame(data = y2)
 
-minutes = raw_data['MIN']
-print(minutes.head())
+# rebounds = raw_data['REB']
+# blocks = raw_data['BLK']
+# plt.scatter(rebounds, blocks)
+# plt.show()
 
-points = raw_data['PTS']
-print(points.head())
-plt.scatter(minutes, points)
+# madethrees = raw_data['3P Made']
+# rebounds = raw_data['REB']
+# plt.scatter(rebounds, madethrees)
+# plt.show()
+
+blocks = raw_data['BLK']
+madethrees = raw_data['3P Made']
+plt.scatter(blocks, madethrees)
 plt.show()
 
-y1 = zip(minutes, points)
+y1 = zip(blocks, madethrees)
 y2 = list(y1)
 data_frame = pd.DataFrame(data = y2)
 
@@ -68,4 +78,3 @@ plt.xlabel('Values of K')
 plt.ylabel('Silhouette score') 
 plt.title('Silhouette analysis For Optimal k')
 plt.show()
-
