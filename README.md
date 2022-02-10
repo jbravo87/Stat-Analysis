@@ -25,8 +25,11 @@ Probabilities of five most liberal voting judges.
   <img src="https://github.com/jbravo87/Stat-Analysis/blob/2b5e7162ec7918c679caed73fda079a86f1312d3/LiberalVotesProb.png"
 </p>
 
+### NBA Players (k-Means)
+
 Obtained data from data.world pertaining to NBA players. Took averages of made 3PT field goals and blocks. Wanted to invole the ideals of data segmentation to see any relationship between average blocks and made three-pointers. Used the Elbow Method and Silhouette Analysis to determine optimal k.
 Completed goal of visualizing clusters formed by k-Means algorithm. Included the centroids.
 <p align="center">
-  <img src="https://github.com/jbravo87/Stat-Analysis/blob/4711fe3bb50591e0def3114cb6ddba756d78a40c/blocksmade3ptsclustering.png
+  <img src="https://github.com/jbravo87/Stat-Analysis/blob/4711fe3bb50591e0def3114cb6ddba756d78a40c/blocksmade3ptsclustering.png"
 </p>
+
