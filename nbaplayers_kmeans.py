@@ -6,6 +6,7 @@ Created on Wed Jan 26 21:18:35 2022
 # Import necessary libraries
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 from sklearn.decomposition import PCA
 import seaborn as sns
 import sklearn
@@ -112,11 +113,30 @@ filtered_label0 = data_frame[label == 0]
 filtered_label1 = data_frame[label == 1]
 filtered_label2 = data_frame[label == 2]
 
+# Plotting the Cluster Centroids
+# Get the centroids.
+centroids = kmeans.cluster_centers_
+unique_labels = np.unique(label)
+
 # Plotting the results
 plt.scatter(filtered_label0.loc[:, 0], filtered_label0.loc[:, 1], color = 'limegreen')
 plt.scatter(filtered_label1.loc[:, 0], filtered_label1.loc[:, 1], color = 'deepskyblue')
 plt.scatter(filtered_label2.loc[:, 0], filtered_label2.loc[:, 1], color = 'black')
+plt.scatter(centroids[:, 0], centroids[:, 1], s = 50, color = "darkorange")
+plt.legend(["cluster 1", "cluster 2", "cluster 3"])
 plt.xlabel('Average Blocks')
 plt.ylabel('Average Made 3PTS') 
 plt.title('Blocks vs. Made 3PT')
+
 plt.show()
+
+print('The centroids are :\n', centroids)
+
+# # Plot the results
+# for j in unique_labels :
+#     plt.scatter(data_frame[label == j, 0], data_frame[label == j, 1], label = j)
+# plt.scatter(centroids[:, 0], centroids[:, 1], s = 50, color = "black")
+# plt.legend()
+# plt.show()
+
+### End of nbaplayers_kmeans.py
