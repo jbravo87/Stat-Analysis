@@ -173,3 +173,16 @@ print(f'r2 Value: {lr_train_r2:.8f}')
 lr_results = pd.DataFrame(['Linear Regression', lr_train_mse, model_train_r2, lr_test_mse, lr_test_r2]).transpose()
 lr_results.columns = ['Method', 'Training MSE', 'Training R2', 'Test MSE', 'Test R2']
 print(lr_results)
+
+import scipy.stats as stats
+fig3, ax0 = plt.subplots(figsize = (4, 4))
+norm_sample = stats.norm.rvs(size = 100)
+#stats.probplot(norm_sample, plot = ax0)
+stats.probplot(response, plot = ax0)
+
+##from fitter import Fitter, get_common_distributions, get_distributions
+from fitter import Fitter
+#f = Fitter(predictor, distributions = get_common_distributions())
+f = Fitter(predictor)
+f.fit()
+f.summary()
