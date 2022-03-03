@@ -65,3 +65,46 @@ result = y1.merge(y2, on=['planetname'])
 import seaborn as sns
 sns.distplot(result.orbitperiod)
 sns.distplot(result.eccentricity)
+
+from scipy import stats
+def check_normality(data):
+    test_stat_normality, p_value_normality=stats.shapiro(data)
+    print("p value:%.4f" % p_value_normality)
+    if p_value_normality <0.05:
+        print("Reject null hypothesis >> The data is not normally distributed")
+    else:
+        print("Fail to reject null hypothesis >> The data is normally distributed")
+
+check_normality(result.eccentricity)
+result.boxplot(column = ['orbitperiod'])
+result.boxplot(column = ['eccentricity'])
+
+# Finding the interquartile range
+percentile25 =  result['orbitperiod'].quantile(0.25)
+percentile75 = result['orbitperiod'].quantile(0.75)
+iqr = percentile75 - percentile25
+# Find upper and lower limit
+upper_limit = percentile75 + 1.5*iqr
+lower_limit = percentile25 - 1.5*iqr
+# Finding outliers
+result[result['orbitperiod'] > upper_limit]
+result[result['orbitperiod'] < lower_limit]
+# Trimming
+result2 = result[result['orbitperiod'] < upper_limit] 
+print(result2.shape)
+# To get the number of rows/observations
+result.shape[0]
+from scipy.stats import chi2_contingency
+obs = np.array([[result.orbitperiod],[result.eccentricity]])
+chi2, p, dof, ex = chi2_contingency(obs, correction=False)
+print("expected frequencies:\n ", np.round(ex,2))
+print("degrees of freedom:", dof)
+print("test stat :%.4f" % chi2)
+print("p value:%.4f" % p)
+# from scipy.stats import chi2
+# ## calculate critical stat
+
+# alpha = 0.01
+# df = (5-1)*(2-1)
+# critical_stat = chi2.ppf((1-alpha), df)
+# print("critical stat:%.4f" % critical_stat)
