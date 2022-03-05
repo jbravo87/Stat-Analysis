@@ -5,11 +5,11 @@ Created on Sat Feb 26 11:04:43 2022
 @author: joepb
 """
 # Import necessary libraries
-from random import seed
-from random import randrange
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.stats import chi2_contingency
+from fitter import Fitter, get_common_distributions, get_distributions
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.ensemble import RandomForestRegressor
@@ -32,6 +32,7 @@ df2.reset_index(drop=True, inplace=True)
 # plt.scatter(df2.orbitperiod, df2.eccentricity)
 # sample_df = df2.iloc[0:9]
 sample_df = df2.iloc[0:789]
+
 #######
 # Notice that the data type for the last two columns 
 # is string and not double or numeric
@@ -79,22 +80,65 @@ check_normality(result.eccentricity)
 result.boxplot(column = ['orbitperiod'])
 result.boxplot(column = ['eccentricity'])
 
-# Finding the interquartile range
-percentile25 =  result['orbitperiod'].quantile(0.25)
-percentile75 = result['orbitperiod'].quantile(0.75)
-iqr = percentile75 - percentile25
-# Find upper and lower limit
-upper_limit = percentile75 + 1.5*iqr
-lower_limit = percentile25 - 1.5*iqr
-# Finding outliers
-result[result['orbitperiod'] > upper_limit]
-result[result['orbitperiod'] < lower_limit]
-# Trimming
-result2 = result[result['orbitperiod'] < upper_limit] 
-print(result2.shape)
+# # Finding the interquartile range for the orbit period
+# percentile25 =  result['orbitperiod'].quantile(0.25)
+# percentile75 = result['orbitperiod'].quantile(0.75)
+# iqr = percentile75 - percentile25
+# # Find upper and lower limit
+# upper_limit = percentile75 + 1.5*iqr
+# lower_limit = percentile25 - 1.5*iqr
+# # Finding outliers
+# result[result['orbitperiod'] > upper_limit]
+# result[result['orbitperiod'] < lower_limit]
+# # Trimming
+# result = result[result['orbitperiod'] < upper_limit] 
+
+# Turn the above logic into a function
+def iqr(some_array, column):
+    percentile25 = some_array[column].quantile(0.25)
+    percentile75 = some_array[column].quantile(0.75)
+    # Interquartile Range
+    iqr = percentile75 - percentile25
+    # Lower Limit
+    infimum = percentile25 - 1.5*iqr
+    # Upper Limit
+    supremum = percentile75 + 1.5*iqr
+    # Finding outliers
+    some_array[some_array[column] > supremum]
+    some_array[some_array[column] < infimum]
+    # Trimming
+    new_array = some_array[some_array[column] < supremum]
+    return new_array
+
+print(result.shape)
+
 # To get the number of rows/observations
 result.shape[0]
-from scipy.stats import chi2_contingency
+
+# Finding the interquartile range for the eccentricity
+# percent25 =  result['eccentricity'].quantile(0.25)
+# percent75 = result['eccentricity'].quantile(0.75)
+# iqr2 = percent25 - percent75
+# # Find upper and lower limit
+# upper_limit2 = percent75 + 1.5*iqr2
+# lower_limit2 = percent25 - 1.5*iqr2
+# # Finding outliers
+# result[result['eccentricity'] > upper_limit2]
+# result[result['eccentricity'] < lower_limit2]
+# Trimming
+#result = result[result['eccentricity'] < upper_limit] 
+
+# Following to determine the distirbution
+get_common_distributions()
+x = iqr(result, 'eccentricity')
+x1 = iqr(x, 'orbitperiod')
+plt.hist(x1.orbitperiod, density = True, edgecolor = 'black', bins=20)
+sns.distplot(x1.eccentricity)
+x5 = Fitter(x1.orbitperiod, distributions = get_distributions())
+x5.fit()
+x5.summary()
+x5.get_best(method = 'sumsquare_error')
+
 obs = np.array([[result.orbitperiod],[result.eccentricity]])
 chi2, p, dof, ex = chi2_contingency(obs, correction=False)
 print("expected frequencies:\n ", np.round(ex,2))
