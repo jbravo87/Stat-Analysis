@@ -9,10 +9,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import chi2_contingency
+from scipy.stats import chi2
 from fitter import Fitter, get_common_distributions, get_distributions
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.ensemble import RandomForestRegressor
 
 # raw_data = pd.read_csv('J:\\datasets\\stellardata.csv')
 # plt.scatter(raw_data.kepmag, raw_data.logg) #quick scatteplot
@@ -64,8 +62,8 @@ y2 = sample_df.groupby('planetname', as_index = False)['eccentricity'].mean()
 # final_df = pd.concat([y1['orbitperiod'], y2['eccentricity']])
 result = y1.merge(y2, on=['planetname'])
 import seaborn as sns
-sns.distplot(result.orbitperiod)
-sns.distplot(result.eccentricity)
+# sns.distplot(result.orbitperiod)
+# sns.distplot(result.eccentricity)
 
 from scipy import stats
 def check_normality(data):
@@ -77,8 +75,8 @@ def check_normality(data):
         print("Fail to reject null hypothesis >> The data is normally distributed")
 
 check_normality(result.eccentricity)
-result.boxplot(column = ['orbitperiod'])
-result.boxplot(column = ['eccentricity'])
+#result.boxplot(column = ['orbitperiod'])
+#result.boxplot(column = ['eccentricity'])
 
 # # Finding the interquartile range for the orbit period
 # percentile25 =  result['orbitperiod'].quantile(0.25)
@@ -115,21 +113,8 @@ print(result.shape)
 # To get the number of rows/observations
 result.shape[0]
 
-# Finding the interquartile range for the eccentricity
-# percent25 =  result['eccentricity'].quantile(0.25)
-# percent75 = result['eccentricity'].quantile(0.75)
-# iqr2 = percent25 - percent75
-# # Find upper and lower limit
-# upper_limit2 = percent75 + 1.5*iqr2
-# lower_limit2 = percent25 - 1.5*iqr2
-# # Finding outliers
-# result[result['eccentricity'] > upper_limit2]
-# result[result['eccentricity'] < lower_limit2]
-# Trimming
-#result = result[result['eccentricity'] < upper_limit] 
-
 # Following to determine the distirbution
-get_common_distributions()
+# get_common_distributions()
 x = iqr(result, 'eccentricity')
 x1 = iqr(x, 'orbitperiod')
 plt.hist(x1.orbitperiod, density = True, edgecolor = 'black', bins=20)
@@ -139,16 +124,26 @@ x5.fit()
 x5.summary()
 x5.get_best(method = 'sumsquare_error')
 
-obs = np.array([[result.orbitperiod],[result.eccentricity]])
-chi2, p, dof, ex = chi2_contingency(obs, correction=False)
-print("expected frequencies:\n ", np.round(ex,2))
-print("degrees of freedom:", dof)
-print("test stat :%.4f" % chi2)
-print("p value:%.4f" % p)
-# from scipy.stats import chi2
-# ## calculate critical stat
+# The following will test the hypothesis that the eccentricity of the planets in the data
+# is independent of their orbit period. Will use significance level (alpha) of 0.01
+# chi2 test will be used for this question.
+#observations = np.array([[result.orbitperiod],[result.eccentricity]])
+observations = np.array([[x1.orbitperiod],[x1.eccentricity]])
+num_col, not_necessary, num_rows = observations.shape
+chistat, p, dof, ex = chi2_contingency(observations, correction=False)
+print("expected frequencies:\n  ", np.round(ex,2))
+print("degrees of freedom: ", dof)
+print("test stat:%.4f " % chistat)
+print("p value:%.4f " % p)
+#from scipy.stats import chi2
+## Calculate critical stat
+alpha = 0.01
+df = (num_rows - 1)*(num_col - 1)
+critical_stat = chi2.ppf((1-alpha), df)
+print("critical stat:%.4f" % critical_stat)
 
-# alpha = 0.01
-# df = (5-1)*(2-1)
-# critical_stat = chi2.ppf((1-alpha), df)
-# print("critical stat:%.4f" % critical_stat)
+#plt.scatter([result.eccentricity],[result.orbitperiod])
+plt.scatter([x1.eccentricity],[x1.orbitperiod])
+plt.show()
+
+#lessthan12yrs = 
