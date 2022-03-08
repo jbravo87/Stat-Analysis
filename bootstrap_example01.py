@@ -10,9 +10,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-#from scipy.stats import chi2_contingency
-#from scipy.stats import chi2
-#from fitter import Fitter, get_common_distributions, get_distributions
+from sklearn.utils import resample
 
 raw_data = pd.read_csv('J:\\datasets\\PS_2022.02.27_18.46.12.csv')
 # Need to remove the first thirteen rows.
@@ -35,10 +33,12 @@ sample_df = df2.iloc[0:789]
 #######
 print(type(sample_df.iloc[0][1]))
 print(type(sample_df.iloc[0][2]))
-sample_df['orbitperiod'] = sample_df['orbitperiod'].astype(float)
-sample_df['eccentricity'] = sample_df['eccentricity'].astype(float)
-#sample_df['orbitperiod'].astype(float)
-#sample_df['eccentricity'].astype(float)
+# Convert just columns "a" and "b"
+#sample_df.iloc[:, 1] = sample_df.iloc[:, 1].apply(pd.to_numeric)
+#sample_df.iloc[:, 2] = sample_df.iloc[:, 2].apply(pd.to_numeric)
+sample_df.loc[:, 'orbitperiod'] = sample_df.loc[:, 'orbitperiod'].apply(pd.to_numeric)
+sample_df.loc[:, 'eccentricity'] = sample_df.loc[:, 'eccentricity'].apply(pd.to_numeric)
+
 # Function to get the mean of a column from a dataframe
 def calc_mean(x_dataframe, column):
     planetnames_list = list(set(x_dataframe['planetname'].values.tolist()))
@@ -88,19 +88,66 @@ print('Size of the fourth (final) data frame: ', df4.shape)
 df4.shape[0]
 
 # Distributional plots
-plot1 = sns.displot(df4.orbitperiod)
+plot1 = sns.displot(df4.orbitperiod, color = 'green')
 plt.title("title")
 plt.show(plot1)
-plot2 = sns.displot(df4.eccentricity)
+plot2 = sns.displot(df4.eccentricity, color = 'darkorange')
 plt.title("title")
 plt.show(plot2)
-plot3 = plt.hist(df4.orbitperiod, density = True, edgecolor = 'black', bins=20)
+plot3 = plt.hist(df4.orbitperiod, color = "olivedrab", density = True, edgecolor = 'black', bins=20)
 plt.title("Histrogram of Orbit Period column")
 plt.show(plot3)
 # Plot4 options changes the x-y dependence
-plot4 = plt.scatter([df4.eccentricity],[df4.orbitperiod])
+plot4 = plt.scatter([df4.eccentricity],[df4.orbitperiod], color = 'darkcyan')
 #plot4 = plt.scatter([df4.orbitperiod], [df4.eccentricity])
 plt.title("Scatterplot")
 plt.show(plot4)
 
-#lessthan12yrs = 
+# Now logic for the bootstrapping method.
+# First, the orbit period column .
+orbitperiod = df4.iloc[:, 1]
+results1 = []
+for nrepeat in range(1000):
+    sample = resample(orbitperiod)
+    results1.append(sample.median())
+results1 = pd.Series(results1)
+print('\nBootstrap Statistics for orbit period column: \n')
+print(f'original: {orbitperiod.median()}')
+print(f'bias: {results1.mean() - orbitperiod.median()}')
+print(f'std. error: {results1.std()}')
+
+print("\nOrbit period mean: %.4f" % orbitperiod.mean())
+#np.random.seed(seed = 3)
+np.random.seed(seed = 1554)
+# Create a sample of 20 orbit period data
+sample20 = resample(orbitperiod, n_samples = 20, replace = False)
+print('Sample of 20 mean: %.4f' % sample20.mean())
+results3 = []
+for nrepeat in range(500) :
+    sample = resample(sample20)
+    results3.append(sample.mean())
+results3 = pd.Series(results3)
+
+# Confidence Interval
+confidence_interval = list(results3.quantile([0.05, 0.95]))
+ax = results3.plot.hist(bins=30, figsize=(4, 3), color='coral')
+ax.plot(confidence_interval, [55, 55], color='black')
+for x in confidence_interval:
+    ax.plot([x, x], [0, 65], color='black')
+    ax.text(x, 70, f'{x:.0f}', 
+            horizontalalignment='center', verticalalignment='center')
+ax.text(sum(confidence_interval) / 2, 60, '90% interval',
+        horizontalalignment='center', verticalalignment='center')
+
+mean_orbitperiod = results3.mean()
+ax.plot([mean_orbitperiod, mean_orbitperiod], [0, 50], color='black', linestyle='--')
+ax.text(mean_orbitperiod, 10, f'Mean: {mean_orbitperiod:.0f}',
+        bbox=dict(facecolor='white', edgecolor='white', alpha=0.5),
+        horizontalalignment='center', verticalalignment='center')
+ax.set_ylim(0, 80)
+ax.set_ylabel('Counts')
+
+plt.tight_layout()
+plt.title('Confidence Interval for Orbit Period')
+plt.show()
+# Plot above is the bootstrap confidence interal for the orbit period based on a sample of 20.
