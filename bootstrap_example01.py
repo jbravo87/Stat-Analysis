@@ -10,6 +10,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+from scipy import stats
 from sklearn.utils import resample
 
 raw_data = pd.read_csv('J:\\datasets\\PS_2022.02.27_18.46.12.csv')
@@ -151,3 +152,14 @@ plt.tight_layout()
 plt.title('Confidence Interval for Orbit Period')
 plt.show()
 # Plot above is the bootstrap confidence interal for the orbit period based on a sample of 20.
+# Want to visualize the distribution and compare to normal distribution using QQ plot
+fig, ax1 = plt.subplots(figsize = (4, 4))
+norm_sample = stats.norm.rvs(size = 100)
+#stats.probplot(norm_sample, plot = ax1)
+#stats.probplot(orbitperiod, dist = stats.expon, plot = ax1)
+lam = 2.13
+#stats.probplot(norm_sample, dist = stats.tukeylambda(lam), plot = ax1)
+#stats.probplot(orbitperiod, dist = stats.tukeylambda(lam), plot = ax1)
+stats.probplot(orbitperiod, dist = stats.t(lam), plot = ax1)
+plt.tight_layout()
+plt.show()
