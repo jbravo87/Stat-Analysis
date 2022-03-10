@@ -159,7 +159,29 @@ norm_sample = stats.norm.rvs(size = 100)
 #stats.probplot(orbitperiod, dist = stats.expon, plot = ax1)
 lam = 2.13
 #stats.probplot(norm_sample, dist = stats.tukeylambda(lam), plot = ax1)
-#stats.probplot(orbitperiod, dist = stats.tukeylambda(lam), plot = ax1)
-stats.probplot(orbitperiod, dist = stats.t(lam), plot = ax1)
+stats.probplot(orbitperiod, dist = stats.tukeylambda(lam), plot = ax1)
+#stats.probplot(orbitperiod, dist = stats.t(lam), plot = ax1)
 plt.tight_layout()
 plt.show()
+
+# Check out the column names
+#print(df4.columns)
+
+# Now want to create a Random Forest model.
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import preprocessing
+from sklearn import utils
+
+#predictors = ['planetname', 'eccentricity']
+predictors = ['eccentricity']
+response = ['orbitperiod']
+
+X = df4[predictors]
+y = df4[response]
+le = preprocessing.LabelEncoder()
+encoded = le.fit_transform(y)
+
+rf = RandomForestClassifier(n_estimators = 500, random_state = 1, oob_score = True)
+#rf.fit(predictors, response)
+rf.fit(X, encoded.ravel())
+print(rf.oob_decision_function_)
