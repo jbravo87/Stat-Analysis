@@ -175,7 +175,7 @@ for nrepeat2 in range(500) :
 results4 = pd.Series(results4)
 # Confidence Interval for Orbital Period
 confidence_interval2 = list(results4.quantile([0.05, 0.95]))
-ax2 = results4.plot.hist(bins=30, figsize=(4, 3), color='indigo')
+ax2 = results4.plot.hist(bins=30, figsize=(4, 3), color='indigo', edgecolor='white')
 ax2.plot(confidence_interval2, [55, 55], color='black')
 for j in confidence_interval2:
     ax2.plot([j, j], [0, 65], color='black')
@@ -210,13 +210,15 @@ def tts(data, split = 0.80):
     while len(train) < train_size :
         index = randrange(len(data_copy))
         train.append(data_copy.pop(index))
-    return train, data_copy
+    return np.array(train), np.array(data_copy)
 
 # Extract variables of interest.
 X, y = list(df4.orbitperiod), list(df4.eccentricity)
+#y = y.reshape(-1, 1).T
 X_train, X_test = tts(X)
 y_train, y_test = tts(y)
 X_train, y_train = pd.DataFrame(X_train), pd.DataFrame(y_train)
+
 X_test, y_test = pd.DataFrame(X_test), pd.DataFrame(y_test)
 print('\nTraining X shape: ', X_train.shape)
 print('Training y shape: ', y_train.shape)
@@ -225,9 +227,68 @@ print('Test y shape: ', y_test.shape)
 
 # Build the model.
 from sklearn.ensemble import RandomForestRegressor
-randfor = RandomForestRegressor(max_depth = 2, random_state = 42)
-randfor.fit(X_train, y_train)
+# model_forest = RandomForestRegressor(max_depth = 2, random_state = 42)
+model_forest = RandomForestRegressor()
+model_forest.fit(X_train, y_train.values.ravel())
 
-y_rf_train_pred = randfor.predict(X_train)
-y_rf_test_pred = randfor.predict(X_test)
+y_rf_train_pred = model_forest.predict(X_train)
+y_rf_test_pred = model_forest.predict(X_test)
 # Model Performance
+from  sklearn.metrics import mean_squared_error, r2_score
+# Random Forest training mean square error and R2
+rf_train_mse = mean_squared_error(y_train, y_rf_train_pred)
+rf_train_r2 = r2_score(y_train, y_rf_train_pred)
+# Random Forest test MSE and R2
+rf_test_mse = mean_squared_error(y_test, y_rf_test_pred)
+rf_test_r2 = r2_score(y_test, y_rf_test_pred)
+# Now consolidate the results.
+rf_results = pd.DataFrame(['Random Forest', rf_train_mse, rf_train_r2, rf_test_mse, rf_test_r2]).transpose()
+rf_results.columns = ['Method', 'Training MSE', 'Training R2', 'Test MSE', 'Test R2']
+print(rf_results)
+# # Data visualization of Prediction Results
+# plt.figure(figsize = (5, 5))
+# #plot5 = plt.scatter( x = y_train, y = y_rf_train, color = "aquamarine", alpha = 0.3)
+# plt.scatter( x = y_train, y = y_rf_train_pred, color = "aquamarine", alpha = 0.3)
+    
+# z = np.polyfit(y_train, y_rf_train_pred, 1)
+# p = np.poly1d(z)
+# plt.plot(y_train, p(y_train), color = "darkorange")
+# plt.ylabel("Predicted Values")
+# plt.xlabel("Experimental Values")
+
+df5 = df3
+df6 = df5.values
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import RepeatedStratifiedKFold
+from sklearn.neighbors import KNeighborsRegressor
+df7 = pd.DataFrame(df3,columns=['orbitperiod','eccentricity'])
+# Going from a dataframe to an array of float64 
+df8 = df7.values
+# Separate into input (X2) and output (y2) columns
+X2 = df7.iloc[:, 0].values
+y2 = df7.iloc[:, 1].values
+#X2, y2 = pd.DataFrame(df8[:, 0]), pd.DataFrame(df8[:, 1])
+#X2, y2 = df7.iloc[:, 0], df7.iloc[:, 1]
+# Will not use train-test-split in this iteration of the model building which will inherently compromise the integrity of my model.
+# The model that I will create is the K-Neighbors Regression
+# # Want to store RMSE values for different k
+# for k in range(20):
+#     k = k + 1
+#     model = neighbors.KNeighborsRegressor(n_neighbors = k)
+#     # Fit model
+X2_train, X2_test = tts(X2)
+y2_train, y2_test = tts(y2)
+X2_train = X2_train.reshape(-1, 1)
+y2_train = y2_train.reshape(-1, 1)
+X2_test = X2_test.reshape(-1, 1)
+y2_test = y2_test.reshape(-1, 1)
+model_knr = KNeighborsRegressor()
+# Fit model using the training data and training targets.
+model_knr.fit(X2_train, y2_train)
+print(model_knr.score(X2_test, y2_test))
+cv = RepeatedStratifiedKFold(n_splits = 10, n_repeats = 3, random_state = 1)
+n_scores = cross_val_score(model_knr, X2, y2, scoring = 'accuracy', cv = cv, n_jobs = -1, error_score = 'raise')
+from numpy import mean
+from numpy import std
+# Report model performance
+print("Accuracy: %.3f (%.3f)" % (mean(n_scores), std(n_scores)))
