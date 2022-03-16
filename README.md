@@ -39,7 +39,7 @@ Completed goal of visualizing clusters formed by k-Means algorithm. Included the
 
 The following is a visual of the silhouette analysis to determine the optimal K for this dataset.
 <p align="center">
-https://github.com/jbravo87/Stat-Analysis/blob/2ac0fc66027af4cefa01720c0a14bc8ee0e47c48/SilhouetteAnalysis.png
+  <img src="https://github.com/jbravo87/Stat-Analysis/blob/2ac0fc66027af4cefa01720c0a14bc8ee0e47c48/SilhouetteAnalysis.png"
 </p>
 
 ## Planetary Data Analysis
