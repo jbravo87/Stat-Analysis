@@ -17,7 +17,8 @@ import numpy as np
 #import seaborn as sns
 from scipy import stats
 from sklearn.utils import resample
-
+from sklearn.neighbors import KNeighborsRegressor
+from  sklearn.metrics import mean_squared_error, r2_score
 seed(125)
 # Will invoke train-test-split (tts) resampling method.
 def tts(data, split = 0.80):
@@ -72,3 +73,36 @@ print('\nTraining x shape: ', x_train.shape)
 print('Training y shape: ', y_train.shape)
 print('Test x shape: ', x_test.shape)
 print('Test y shape: ', y_test.shape)
+
+# Now to build a crude model
+# Will run kNN for various values of n_neighbors and store results
+knn_r_acc = []
+for i in range(1, 17, 1) :
+    knn = KNeighborsRegressor(n_neighbors = i)
+    knn.fit(x_train, y_train)
+    
+    test_score = knn.score(x_test, y_test)
+    train_score = knn.score(x_train, y_train)
+    
+    knn_r_acc.append((i, test_score, train_score))
+    
+results = pd.DataFrame(knn_r_acc, columns = ['k', 'Test Score', 'Train Score'])
+print(results)
+print(results.iloc[:,1].max())
+# According to the above, the model yields best fit at k = 15.
+
+model_knn = KNeighborsRegressor(n_neighbors = 15)
+model_knn.fit(x_train, y_train)
+y_knn_train_pred = model_knn.predict(x_train)
+y_knn_test_pred = model_knn.predict(x_test)
+# Model Performance
+# First, the training mean square error and r2 score.
+knn_train_mse = mean_squared_error(y_train, y_knn_train_pred)
+knn_train_r2 = r2_score(y_train, y_knn_train_pred)
+# Now, test mean square and r2 score.
+knn_test_mse = mean_squared_error(y_test, y_knn_test_pred)
+knn_test_r2 = r2_score(y_test, y_knn_test_pred)
+# Consolidate the results.
+knn_results = pd.DataFrame(['k Nearest Neighbor', knn_train_mse, knn_train_r2, knn_test_mse, knn_test_r2]).transpose()
+knn_results.columns = ['Method', 'Training MSE', 'Training R2', 'Test MSE', 'Test R2']
+print(knn_results)
