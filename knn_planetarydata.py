@@ -106,3 +106,26 @@ knn_test_r2 = r2_score(y_test, y_knn_test_pred)
 knn_results = pd.DataFrame(['k Nearest Neighbor', knn_train_mse, knn_train_r2, knn_test_mse, knn_test_r2]).transpose()
 knn_results.columns = ['Method', 'Training MSE', 'Training R2', 'Test MSE', 'Test R2']
 print(knn_results)
+# from numpy import mean
+# from numpy import std
+# from sklearn.model_selection import cross_val_score
+# from sklearn.model_selection import RepeatedStratifiedKFold
+# # Another approach to evaluate the model.
+# cv = RepeatedStratifiedKFold(n_splits = 10, n_repeats = 3, random_state = 1)
+# n_scores = cross_val_score(model_knn, x, y, scoring = 'accuracy', cv = cv, n_jobs = -1, error_score = 'raise')
+# # Report the model performance
+# print('Accuracy: %.3f (%.3f)' % (mean(n_scores), std(n_scores)))
+
+# In this part want to explicitly declare the median and IQR of the
+# two columns which are the variables.
+import statistics
+ecce = df3['eccentricity']
+orbper = df3['orbitperiod']
+eccen_med = statistics.median(list(ecce))
+orbper_med = statistics.median(list(orbper))
+print('\nThe median of the orbital period: %.2f' % orbper_med)
+print('\nThe median of the eccentricity: %.2f' % eccen_med)
+iqr_ecce = stats.iqr(ecce, interpolation = 'midpoint')
+iqr_op = stats.iqr(orbper, interpolation = 'midpoint')
+print('\nThe interquartile range of the eccentricity: %.2f' % iqr_ecce)
+print('\nThe interquartile range of the orbital period: %.2f' % iqr_op)
