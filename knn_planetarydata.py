@@ -129,3 +129,17 @@ iqr_ecce = stats.iqr(ecce, interpolation = 'midpoint')
 iqr_op = stats.iqr(orbper, interpolation = 'midpoint')
 print('\nThe interquartile range of the eccentricity: %.2f' % iqr_ecce)
 print('\nThe interquartile range of the orbital period: %.2f' % iqr_op)
+# Going to store the scaled data in a for orbit period and b for eccentricity
+a = (orbper - np.median(orbper))/iqr_op
+b = (ecce - np.median(ecce))/iqr_ecce
+x3 = df3[['orbitperiod','eccentricity']] # <- this is a dataframe
+from sklearn.preprocessing import RobustScaler
+rs = RobustScaler().fit(x3)
+print(rs.transform(x3))
+transformer = rs.transform(x3)
+print('\nThe maximum orbital period is: %.2f ' % orbper.max())
+# Want to perform Spearman correlation coefficient calculation
+spearman_coeff = stats.spearmanr(ecce, orbper)
+print(spearman_coeff)
+tau_test = stats.kendalltau(ecce, orbper)
+print('The Kendall Tau Test Results: ', tau_test)
