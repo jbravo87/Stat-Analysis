@@ -143,3 +143,49 @@ spearman_coeff = stats.spearmanr(ecce, orbper)
 print(spearman_coeff)
 tau_test = stats.kendalltau(ecce, orbper)
 print('The Kendall Tau Test Results: ', tau_test)
+
+# Now want to create second knn model using the data that had been treated through robust scaling
+#a, b = pd.DataFrame(a), pd.DataFrame(b)
+c = [a, b]
+df4 = pd.concat(c, axis=1)
+# Split the data into training and testing.
+x2, y2 = list(df4.orbitperiod), list(df4.eccentricity)
+x2_train, x2_test = tts(x2)
+y2_train, y2_test = tts(y2)
+x2_train, y2_train = pd.DataFrame(x2_train), pd.DataFrame(y2_train)
+x2_test, y2_test = pd.DataFrame(x2_test), pd.DataFrame(y2_test)
+print('\nTraining x2 shape: ', x2_train.shape)
+print('Training y2 shape: ', y2_train.shape)
+print('Test x2 shape: ', x2_test.shape)
+print('Test y2 shape: ', y2_test.shape)
+# Will run kNN for various values of n_neighbors and store results
+knn_r_acc2 = []
+for j in range(1, 17, 1) :
+    knn2 = KNeighborsRegressor(n_neighbors = j)
+    knn2.fit(x2_train, y2_train)
+    
+    test_score2 = knn.score(x2_test, y2_test)
+    train_score2 = knn.score(x2_train, y2_train)
+    
+    knn_r_acc2.append((j, test_score2, train_score2))
+    
+results2 = pd.DataFrame(knn_r_acc2, columns = ['k', 'Test Score', 'Train Score'])
+print(results2)
+print(results2.iloc[:,1].max())
+# According to the above, the model yields best fit at k = 15, also.
+model_knn2 = KNeighborsRegressor(n_neighbors = 15)
+model_knn2.fit(x2_train, y2_train)
+y_knn_train_pred2 = model_knn2.predict(x2_train)
+y_knn_test_pred2 = model_knn2.predict(x2_test)
+# Model Performance
+# First, the training mean square error and r2 score.
+knn_train_mse2 = mean_squared_error(y2_train, y_knn_train_pred2)
+knn_train_r2_2 = r2_score(y2_train, y_knn_train_pred2)
+# Now, test mean square and r2 score.
+knn_test_mse2 = mean_squared_error(y2_test, y_knn_test_pred2)
+knn_test_r2_2 = r2_score(y2_test, y_knn_test_pred2)
+# Consolidate the results.
+knn_results2 = pd.DataFrame(['k Nearest Neighbor', knn_train_mse2, knn_train_r2_2, knn_test_mse2, knn_test_r2_2]).transpose()
+knn_results2.columns = ['Method', 'Training MSE', 'Training R2', 'Test MSE', 'Test R2']
+print(knn_results2)
+
