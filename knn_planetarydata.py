@@ -14,7 +14,7 @@ from random import randrange
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-#import seaborn as sns
+import seaborn as sns
 from scipy import stats
 from sklearn.utils import resample
 from sklearn.neighbors import KNeighborsRegressor
@@ -189,3 +189,47 @@ knn_results2 = pd.DataFrame(['k Nearest Neighbor', knn_train_mse2, knn_train_r2_
 knn_results2.columns = ['Method', 'Training MSE', 'Training R2', 'Test MSE', 'Test R2']
 print(knn_results2)
 
+def box_plots(df):
+    plt.figure(figsize = (10, 4))
+    plt.title("Box Plot")
+    sns.boxplot(df)
+    plt.show()
+box_plots(df4.orbitperiod)
+
+df3.plot(kind="box", subplots=True, layout=(7,2), figsize=(15,20));
+# Function to identify the outliers using the IQR method
+def iqr_outlier(x, factor) :
+    q1 = x.quantile(0.25)
+    q3 = x.quantile(0.75)
+    iqr = q3 - q1
+    min_ = q1 - factor * iqr
+    max_ = q3 + factor * iqr
+    result_ = pd.Series([0] * len(x))
+    result_[((x < min_) | (x > max_))] = 1
+    return result_
+
+# Scatter plots highlighting outliers calculated using IQR method.
+fig, ax = plt.subplots(7, 2, figsize=(20, 30))
+row = col = 0
+for n, m in enumerate(df4.columns) :
+    if (n % 2 ==0) & (n > 0) :
+        row += 1
+        col = 0
+    outliers = iqr_outlier(df3[m], 1.5)
+        
+    if sum(outliers) == 0 :
+        sns.scatterplot( x = np.arrange(len(df4[m])), y = df4[m], ax = ax[row, col], legend=False, color = 'green')
+    else:
+        sns.scatterplot(x = np.arange(len(df3[m])), y = df4[m], ax = ax[row, col], hue = outliers, palette = ['green', 'red'])
+    for x, y in zip(np.arange(len(df4[m]))[outliers == 1], df4[m][outliers == 1]) :
+        ax[row, col].text(x = x, y = y, s = y, fontsize = 8)
+    ax[row, col].set_ylabel("")
+    ax[row, col].set_title(m)
+    ax[row, col].xaxis.set_visible(False)
+    if sum(outliers) > 0:
+        ax[row, col].legend(ncol = 2)
+    col += 1
+#ax[row, col].axis('off')
+plt.show()
+    
+            
