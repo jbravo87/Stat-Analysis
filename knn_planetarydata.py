@@ -232,4 +232,48 @@ for n, m in enumerate(df4.columns) :
 #ax[row, col].axis('off')
 plt.show()
     
-            
+# Calculating the Euclidean distance of the data set to detect outliers.
+def euclidean_distance_outliers(x, cutoff) :
+    result_ = pd.Series([0]*len(x))
+    data_mean = x.mean() # mean of data
+    dist = np.sqrt(np.sum((x - data_mean)**2)) # Euclidean distance
+    dist_mean = dist.mean() # Mean of the distances
+    dist_zscore = np.abs((dist - dist_mean)/dist.std()) # z-score of the distances
+    result_[((dist_zscore > cutoff))] = 1
+    return result_
+
+# euc_d = df3[['orbitperiod', 'eccentricity']].copy()
+# euc_d['outlier'] = euclidean_distance_outliers(euc_d, 3)
+# sns.scatterplot(x = 'eccentricity', y = 'orbitperiod', data = euc_d, hue = "outlier", palette = ['green', 'red'])
+
+z1 = iqr_outlier(df3.orbitperiod, 1.5)
+z1 = pd.DataFrame(z1)
+z2 = iqr_outlier(df3.eccentricity, 1.5)
+z2 = pd.DataFrame(z2)
+z3 = [df3, z1, z2]
+#z4 = [df3, z2]
+df5 = pd.concat(z3, axis = 1)
+#df5 = pd.concat(z4, axis = 1)
+print(type(z1)) # Type is Pandas Series
+#df5.rename(columns = {0 : 'orbper_outlr'}, inplace = True)
+df5.columns = ['planetnames', 'orbitperiod', 'eccentricity', 'orbper_outlr', 'ecce_outlr']
+#type(df5.orbper_outlr[300])
+# Above is an integer.
+df5.size
+# Will establish new boolean variable
+in_iqr1 = df5['orbper_outlr'] == 0
+df6 = df5[in_iqr1]
+# v1 <- value 1, v2 <- value 2
+v1 = len(df5)
+v2 = len(df6)
+prcnt_diff = ((v1 - v2)/((v1+v2)/2))*100
+print('\nThe percent difference from df5 to df6 is: %.1f' % prcnt_diff)
+in_iqr2 = df6['ecce_outlr'] == 0
+df7 = df6[in_iqr2]
+x4 = df7[['orbitperiod','eccentricity']] # <- this is a dataframe
+rs2 = RobustScaler().fit(x4)
+print(rs2.transform(x4))
+transformer2 = rs2.transform(x4)
+transformer2 = pd.DataFrame(transformer2)
+x4.columns = ['orbitperiod', 'eccentricity']
+transformer2.columns = ['orbitperiod', 'eccentricity']
