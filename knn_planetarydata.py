@@ -277,3 +277,23 @@ transformer2 = rs2.transform(x4)
 transformer2 = pd.DataFrame(transformer2)
 x4.columns = ['orbitperiod', 'eccentricity']
 transformer2.columns = ['orbitperiod', 'eccentricity']
+
+
+a2, b2 = list(df7.orbitperiod), list(df7.eccentricity)
+a2_train, a2_test = tts(a2)
+b2_train, b2_test = tts(b2)
+model_knn3 = KNeighborsRegressor(n_neighbors = 15)
+model_knn3.fit(a2_train, b2_train)
+y_knn_train_pred3 = model_knn3.predict(a2_train)
+y_knn_test_pred3 = model_knn3.predict(a2_test)
+# Model Performance
+# First, the training mean square error and r2 score.
+knn_train_mse3 = mean_squared_error(b2_train, y_knn_train_pred3)
+knn_train_r2_3 = r2_score(b2_train, y_knn_train_pred3)
+# Now, test mean square and r2 score.
+knn_test_mse3 = mean_squared_error(b2_test, y_knn_test_pred3)
+knn_test_r2_3 = r2_score(b2_test, y_knn_test_pred3)
+# Consolidate the results.
+knn_results3 = pd.DataFrame(['k Nearest Neighbor', knn_train_mse3, knn_train_r2_3, knn_test_mse3, knn_test_r2_3]).transpose()
+knn_results3.columns = ['Method', 'Training MSE', 'Training R2', 'Test MSE', 'Test R2']
+print(knn_results3)
