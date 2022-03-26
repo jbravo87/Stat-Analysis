@@ -278,10 +278,12 @@ transformer2 = pd.DataFrame(transformer2)
 x4.columns = ['orbitperiod', 'eccentricity']
 transformer2.columns = ['orbitperiod', 'eccentricity']
 
-
-a2, b2 = list(df7.orbitperiod), list(df7.eccentricity)
+print('\nThe following are performance metrics for the third iteration of this kNN model: ')
+a2, b2 = list(transformer2.orbitperiod), list(transformer2.eccentricity)
 a2_train, a2_test = tts(a2)
 b2_train, b2_test = tts(b2)
+a2_train, b2_train = pd.DataFrame(a2_train), pd.DataFrame(b2_train)
+a2_test, b2_test = pd.DataFrame(a2_test), pd.DataFrame(b2_test)
 model_knn3 = KNeighborsRegressor(n_neighbors = 15)
 model_knn3.fit(a2_train, b2_train)
 y_knn_train_pred3 = model_knn3.predict(a2_train)
@@ -297,3 +299,43 @@ knn_test_r2_3 = r2_score(b2_test, y_knn_test_pred3)
 knn_results3 = pd.DataFrame(['k Nearest Neighbor', knn_train_mse3, knn_train_r2_3, knn_test_mse3, knn_test_r2_3]).transpose()
 knn_results3.columns = ['Method', 'Training MSE', 'Training R2', 'Test MSE', 'Test R2']
 print(knn_results3)
+
+#w1, w2 = list(x4.orbitperiod), list(x4.eccentricity)
+#w1, w2 = list([x4.orbitperiod]), list([x4.eccentricity])
+w1 = x4.iloc[:, 0:2].values
+w2 = x4.iloc[:, 1:2].values
+from sklearn.preprocessing import StandardScaler
+sc_X = StandardScaler()
+sc_y = StandardScaler()
+w3 = sc_X.fit_transform(w1)
+w4 = sc_y.fit_transform(w2)
+w1_train, w1_test = tts(w3)
+w2_train, w2_test = tts(w4)
+# w1_train, w2_train = pd.DataFrame(w1_train), pd.DataFrame(w2_train)
+# w1_test, w2_test = pd.DataFrame(w1_test), pd.DataFrame(w2_test)
+# Fitting the SVR to the dataset
+from sklearn.svm import SVR
+regressor = SVR(kernel = 'rbf')
+regressor.fit(w1_train, w2_train)
+y_svr_train_pred = regressor.predict(w1_train)
+y_svr_test_pred = regressor.predict(w1_test)
+# Model performance
+svr_train_mse = mean_squared_error(w2_train, y_svr_train_pred)
+svr_train_r2 = r2_score(w2_train, y_svr_train_pred)
+# Test results
+svr_test_mse = mean_squared_error(w2_test, y_svr_test_pred)
+svr_test_r2 = r2_score(w2_test, y_svr_test_pred)
+# Consolidate the results.
+svr_results = pd.DataFrame(['SVR', svr_train_mse, svr_train_r2, svr_test_mse, svr_test_r2]).transpose()
+svr_results.columns = ['Method', 'Training MSE', 'Training R2', 'Test MSE', 'Test R2']
+print(svr_results)
+
+
+
+
+
+
+
+
+
+
